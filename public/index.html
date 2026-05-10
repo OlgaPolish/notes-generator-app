@@ -3,17 +3,349 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="AI-powered handwritten notes generator. Преврати текст в красивые конспекты.">
-    <meta name="theme-color" content="#667eea">
-    <title>📝 Генератор Рукописных Конспектов - AI Notes Generator</title>
-    
-    <!-- Google Fonts для красивых шрифтов -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Segoe+Print:wght@400;700&display=swap" rel="stylesheet">
+    <title>Генератор Рукописных Конспектов</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { text-align: center; color: white; margin-bottom: 40px; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header p { font-size: 1.1em; opacity: 0.9; }
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media (max-width: 1024px) { .main-grid { grid-template-columns: 1fr; } }
+        .panel { background: white; border-radius: 12px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .section-title { font-size: 1.2em; font-weight: 600; color: #333; margin-bottom: 16px; border-left: 4px solid #667eea; padding-left: 12px; }
+        .info-box { background: #f3f4ff; padding: 12px 15px; border-radius: 8px; font-size: 13px; color: #555; margin-bottom: 14px; border-left: 4px solid #667eea; }
+        textarea { width: 100%; height: 400px; padding: 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-family: 'Segoe UI', sans-serif; font-size: 14px; resize: vertical; }
+        textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+        .char-count { font-size: 12px; color: #999; margin-top: 6px; }
+        .btn-group { display: flex; gap: 12px; margin-top: 16px; }
+        button { flex: 1; padding: 12px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.25s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 6px 18px rgba(102,126,234,0.3); }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(102,126,234,0.4); }
+        .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+        .btn-secondary { background: #f0f0f0; color: #333; }
+        .btn-secondary:hover { background: #e0e0e0; }
+        .msg-error { background: #fee; color: #c33; padding: 12px 15px; border-radius: 8px; border-left: 4px solid #c33; margin-top: 14px; font-size: 13px; }
+        .msg-success { background: #efe; color: #2a7a2a; padding: 12px 15px; border-radius: 8px; border-left: 4px solid #2a7a2a; margin-top: 14px; font-size: 13px; }
+        .preview-wrap { width: 100%; min-height: 420px; border: 2px solid #e0e0e0; border-radius: 8px; background: #fafafa; overflow: auto; display: flex; align-items: center; justify-content: center; }
+        .placeholder { color: #bbb; font-style: italic; font-size: 14px; text-align: center; padding: 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner { width: 38px; height: 38px; border: 4px solid #e0e0e0; border-top-color: #667eea; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 10px; }
+        .spinner-wrap { display: flex; flex-direction: column; align-items: center; color: #888; font-size: 13px; }
+        .download-btn { margin-top: 16px; }
+        .download-btn button { width: 100%; }
+    </style>
 </head>
 <body>
-    <div id="root"></div>
-    <script type="module" src="/src/index.jsx"></script>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useRef, useLayoutEffect } = React;
+
+function NotesGenerator() {
+    const [inputText, setInputText] = useState('');
+    const [loading,   setLoading]   = useState(false);
+    const [error,     setError]     = useState('');
+    const [success,   setSuccess]   = useState('');
+    const [notesData, setNotesData] = useState(null);
+
+    /* Canvas ВСЕГДА в DOM — не условный рендер */
+    const canvasRef = useRef(null);
+
+    const charCount = inputText.length;
+    const wordCount = inputText.trim() ? inputText.trim().split(/\s+/).filter(Boolean).length : 0;
+
+    /* useLayoutEffect — гарантирует рисование ДО paint браузера */
+    useLayoutEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+
+        if (!notesData) {
+            /* Сбрасываем холст */
+            canvas.width = 10; canvas.height = 10;
+            return;
+        }
+
+        /* Размер A4 */
+        canvas.width  = 900;
+        canvas.height = 1270;
+
+        /* === БЕЛЫЙ ФОН — ОБЯЗАТЕЛЬНО ПОСЛЕ установки размера === */
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        /* Линованная бумага */
+        ctx.strokeStyle = '#e8e8e8'; ctx.lineWidth = 1.5;
+        for (let ly = 100; ly < canvas.height - 50; ly += 40) {
+            ctx.beginPath(); ctx.moveTo(70, ly); ctx.lineTo(canvas.width - 40, ly); ctx.stroke();
+        }
+
+        /* Красные поля */
+        ctx.strokeStyle = '#ffaaaa'; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(55, 90); ctx.lineTo(55, canvas.height - 40); ctx.stroke();
+
+        let y = 68;
+
+        /* Заголовок */
+        ctx.font = 'bold 30px "Segoe Print", cursive';
+        ctx.fillStyle = '#1a3a52';
+        ctx.fillText(notesData.title || 'Конспект', 88, y);
+        y += 46;
+
+        if (notesData.subtitle) {
+            ctx.font = 'italic 15px "Segoe Print", cursive';
+            ctx.fillStyle = '#666';
+            ctx.fillText(notesData.subtitle, 88, y);
+            y += 36;
+        }
+        y += 18;
+
+        /* Хелпер: рисует строку с жёлтым маркером */
+        function renderLine(ctx, line, highlights, tx, ty) {
+            ctx.font = '14px "Segoe Print", cursive';
+            if (highlights && highlights.length) {
+                highlights.forEach(h => {
+                    if (!h) return;
+                    const lc = line.toLowerCase(), hc = h.toLowerCase();
+                    let pos = lc.indexOf(hc);
+                    while (pos !== -1) {
+                        const bw = ctx.measureText(line.substring(0, pos)).width;
+                        const cw = ctx.measureText(line.substring(pos, pos + h.length)).width;
+                        ctx.fillStyle = 'rgba(255,240,0,0.55)';
+                        ctx.fillRect(tx + bw - 2, ty - 17, cw + 4, 21);
+                        pos = lc.indexOf(hc, pos + 1);
+                    }
+                });
+            }
+            ctx.fillStyle = '#333';
+            ctx.fillText(line, tx, ty);
+        }
+
+        function drawText(text, highlights, tx, startY, maxW) {
+            ctx.font = '14px "Segoe Print", cursive';
+            const words = text.split(' ');
+            let line = '', lY = startY;
+            words.forEach(w => {
+                const test = line + (line ? ' ' : '') + w;
+                if (ctx.measureText(test).width > maxW && line) {
+                    renderLine(ctx, line, highlights, tx, lY);
+                    line = w; lY += 32;
+                } else { line = test; }
+            });
+            if (line) { renderLine(ctx, line, highlights, tx, lY); lY += 32; }
+            return lY;
+        }
+
+        /* Секции */
+        (notesData.sections || []).forEach(section => {
+            if (y > canvas.height - 140) return;
+            ctx.font = 'bold 19px "Segoe Print", cursive';
+            ctx.fillStyle = '#c62828';
+            ctx.fillText(`${section.icon || '●'} ${section.title}`, 88, y);
+            y += 40;
+
+            (section.items || []).forEach(item => {
+                if (y > canvas.height - 100) return;
+                ctx.font = 'bold 14px "Segoe Print", cursive';
+                ctx.fillStyle = '#ef6c00';
+                ctx.fillText('→', 98, y);
+                y = drawText(item.text || '', item.highlights || [], 128, y, 700);
+
+                if (item.redCircles && item.redCircles.length) {
+                    ctx.font = 'bold 12px "Segoe Print", cursive';
+                    ctx.strokeStyle = '#e53935'; ctx.lineWidth = 2.5;
+                    item.redCircles.forEach((rc, i) => {
+                        const cx = 128 + 500 + i * 65;
+                        if (cx < canvas.width - 40) {
+                            ctx.fillStyle = '#fff';
+                            ctx.beginPath(); ctx.arc(cx, y - 8, 17, 0, Math.PI * 2);
+                            ctx.fill(); ctx.stroke();
+                            ctx.fillStyle = '#e53935';
+                            const t = String(rc).substring(0, 8);
+                            ctx.fillText(t, cx - ctx.measureText(t).width / 2, y);
+                        }
+                    });
+                    y += 10;
+                }
+            });
+            y += 16;
+        });
+
+        /* Формула */
+        if (notesData.formula && notesData.formula !== 'null' && y < canvas.height - 90) {
+            y += 12;
+            ctx.fillStyle = '#fff8e1';
+            ctx.fillRect(80, y - 8, canvas.width - 120, 46);
+            ctx.strokeStyle = '#fb8c00'; ctx.lineWidth = 3;
+            ctx.strokeRect(80, y - 8, canvas.width - 120, 46);
+            ctx.font = 'bold 15px "Segoe Print", cursive';
+            ctx.fillStyle = '#e65100';
+            ctx.fillText('⭐ ' + notesData.formula, 98, y + 26);
+            y += 62;
+        }
+
+        /* Ключевые выводы */
+        if (notesData.keyPoints && notesData.keyPoints.length && y < canvas.height - 70) {
+            y += 8;
+            ctx.font = 'bold 16px "Segoe Print", cursive';
+            ctx.fillStyle = '#1a3a52';
+            ctx.fillText('📌 Главные выводы:', 88, y);
+            y += 32;
+            notesData.keyPoints.forEach(pt => {
+                if (y > canvas.height - 44) return;
+                ctx.font = '13px "Segoe Print", cursive';
+                ctx.fillStyle = '#444';
+                ctx.fillText('• ' + pt, 104, y);
+                y += 28;
+            });
+        }
+
+    }, [notesData]);
+
+    /* Запрос к API */
+    const generateNotes = async () => {
+        if (!inputText.trim()) { setError('Введите текст'); return; }
+        setLoading(true); setError(''); setSuccess('');
+
+        try {
+            const res = await fetch('/api/claude', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: 'claude-haiku-4-5-20251001',
+                    max_tokens: 1500,
+                    system: `Ты специалист по созданию структурированных конспектов в стиле школьной тетради.
+Верни ТОЛЬКО валидный JSON без markdown-блоков:
+{
+  "title": "Короткий заголовок",
+  "subtitle": "Подзаголовок",
+  "sections": [
+    {
+      "title": "Название раздела",
+      "icon": "emoji",
+      "items": [
+        {
+          "text": "Краткий текст пункта до 60 символов",
+          "highlights": ["ключевое слово"],
+          "redCircles": ["дата или число"]
+        }
+      ]
+    }
+  ],
+  "formula": "Важный вывод или null",
+  "keyPoints": ["Вывод 1", "Вывод 2"]
+}
+Максимум 4-5 разделов. JSON должен быть валидным!`,
+                    messages: [{ role: 'user', content: `Создай конспект:\n\n${inputText.substring(0, 3000)}` }]
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
+
+            let raw = data.content[0].text;
+            raw = raw.replace(/```json\n?|\n?```/g, '').trim();
+            const parsed = JSON.parse(raw);
+            setNotesData(parsed);
+            setSuccess('✅ Конспект готов! Скачайте ниже.');
+
+        } catch (e) {
+            setError('Ошибка: ' + e.message);
+            console.error(e);
+        }
+        setLoading(false);
+    };
+
+    /* Скачивание */
+    const downloadPNG = () => {
+        const canvas = canvasRef.current;
+        if (!canvas || !notesData) return;
+        const link = document.createElement('a');
+        link.href     = canvas.toDataURL('image/png');
+        link.download = `konspekt_${Date.now()}.png`;
+        link.click();
+    };
+
+    const clearAll = () => { setInputText(''); setNotesData(null); setError(''); setSuccess(''); };
+
+    return (
+        <div className="container">
+            <div className="header">
+                <h1>📝 Генератор Рукописных Конспектов</h1>
+                <p>Превращайте текст в красивые конспекты в стиле школьной тетради</p>
+            </div>
+
+            <div className="main-grid">
+                {/* ЛЕВАЯ ПАНЕЛЬ */}
+                <div className="panel">
+                    <div className="section-title">📌 Введите текст</div>
+                    <div className="info-box">💡 Вставьте текст — AI создаст конспект с выделениями и важными датами.</div>
+                    <textarea
+                        value={inputText}
+                        onChange={e => setInputText(e.target.value)}
+                        placeholder="Вставьте лекцию, статью или учебный материал... До 3000 символов."
+                    />
+                    <div className="char-count">Символов: {charCount} | Слов: {wordCount}</div>
+                    <div className="btn-group">
+                        <button className="btn-primary" onClick={generateNotes} disabled={loading || !inputText.trim()}>
+                            {loading ? '⏳ Генерирую...' : '✨ Создать конспект'}
+                        </button>
+                        <button className="btn-secondary" onClick={clearAll}>🗑️ Очистить</button>
+                    </div>
+                    {error   && <div className="msg-error">⚠️ {error}</div>}
+                    {success && <div className="msg-success">{success}</div>}
+                </div>
+
+                {/* ПРАВАЯ ПАНЕЛЬ */}
+                <div className="panel">
+                    <div className="section-title">👀 Превью конспекта</div>
+                    <div className="preview-wrap">
+                        {loading && (
+                            <div className="spinner-wrap">
+                                <div className="spinner"></div>
+                                <span>Обработка текста...</span>
+                            </div>
+                        )}
+
+                        {/* ⚠️ Canvas ВСЕГДА в DOM, просто скрыт */}
+                        <canvas
+                            ref={canvasRef}
+                            style={{
+                                maxWidth: '100%',
+                                borderRadius: '6px',
+                                display: (!loading && notesData) ? 'block' : 'none'
+                            }}
+                        />
+
+                        {!loading && !notesData && (
+                            <div className="placeholder">Здесь появится ваш конспект</div>
+                        )}
+                    </div>
+
+                    {notesData && !loading && (
+                        <div className="download-btn">
+                            <button className="btn-primary" onClick={downloadPNG}>
+                                📥 Скачать конспект (PNG)
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+ReactDOM.render(<NotesGenerator />, document.getElementById('root'));
+</script>
 </body>
 </html>

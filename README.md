@@ -1,285 +1,193 @@
-# 📝 Notes Generator - Генератор Рукописных Конспектов
+# 📝 Генератор Рукописных Конспектов
 
-> **AI-powered application that transforms text into beautiful handwritten-style notes**
+> AI-приложение, которое превращает любой текст в красивый конспект в стиле школьной тетради
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![React](https://img.shields.io/badge/react-18.2-61DAFB?logo=react)
-
-## ✨ Features (Функции)
-
-- 🤖 **AI-Powered** — использует Claude API для интеллектуального структурирования
-- ✍️ **Рукописный стиль** — красивые конспекты в стиле школьной тетради
-- 🎨 **Smart Highlighting** — автоматическое выделение ключевых слов
-- 📍 **Key Points** — автоматический поиск важных дат и цифр в красных кружках
-- 📥 **Export** — скачивание конспектов в PNG для печати
-- 📱 **Responsive** — работает на всех устройствах
-- 🚀 **Fast** — ультра-быстрая генерация благодаря Vite
-- 🔒 **Secure** — API ключ хранится локально, никогда не коммитится
-
-## 🎯 Как Это Работает?
-
-```
-1. Вставляешь текст (лекцию, статью, материал)
-   ↓
-2. Нажимаешь "Создать конспект"
-   ↓
-3. Claude AI анализирует текст и структурирует его
-   ↓
-4. На экране появляется красивый рукописный конспект
-   ↓
-5. Скачиваешь конспект в PNG для печати или использования
-```
-
-## 🚀 Быстрый Старт
-
-### Требования
-- **Node.js** v16 или выше
-- **npm** или **yarn**
-- **API ключ от Anthropic** (бесплатно на [console.anthropic.com](https://console.anthropic.com))
-
-### Установка (5 минут)
-
-```bash
-# 1. Клонируй репозиторий
-git clone https://github.com/твой-username/notes-generator-app.git
-cd notes-generator-app
-
-# 2. Установи зависимости
-npm install
-
-# 3. Создай .env файл (скопируй .env.example)
-cp .env.example .env
-
-# 4. Добавь API ключ в .env
-# Открой .env и замени:
-# VITE_ANTHROPIC_API_KEY=sk-ant-your-key-here
-```
-
-### Запуск
-
-```bash
-# Запусти dev-сервер (откроется на http://localhost:3000)
-npm run dev
-```
-
-**Готово!** 🎉
-
-## 📦 Структура Проекта
-
-```
-notes-generator-app/
-├── src/
-│   ├── components/
-│   │   └── NotesGenerator.jsx      # Основной компонент
-│   ├── styles/
-│   │   └── main.css                # Все стили
-│   ├── App.jsx                     # Root компонент
-│   └── index.jsx                   # Entry point
-├── public/
-│   └── index.html                  # HTML контейнер
-├── package.json                    # Зависимости
-├── vite.config.js                  # Конфиг Vite
-├── .env.example                    # Шаблон переменных
-├── .gitignore                      # Файлы, которые не коммитить
-└── README.md                       # Этот файл
-```
-
-## 🔑 Получение API Ключа
-
-1. Перейди на **[console.anthropic.com](https://console.anthropic.com/)**
-2. Создай аккаунт (бесплатно)
-3. В левом меню выбери **"API Keys"**
-4. Нажми **"Create Key"**
-5. Скопируй ключ вида `sk-ant-...`
-6. Добавь в файл `.env`:
-   ```env
-   VITE_ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxxxxx
-   ```
-
-⚠️ **ВАЖНО:** Никогда не публикуй ключ в GitHub! Файл `.env` уже добавлен в `.gitignore`
-
-## 📝 Как Использовать
-
-### Базовое использование
-
-```
-1. Открой приложение (http://localhost:3000)
-2. Вставь текст в левое поле (до 3000 символов)
-3. Нажми "✨ Создать конспект"
-4. Ждешь 2-5 секунд
-5. Конспект появляется в правом окне
-6. Скачай конспект кнопкой "📥 Скачать конспект"
-```
-
-### Советы для лучших результатов
-
-- ✅ **Используй связные тексты** — лучше работает с лекциями, статьями
-- ✅ **Не более 3000 символов** — для качественной генерации
-- ✅ **Структурированный текст** — если возможно, раздели на параграфы
-- ❌ **Избегай** — случайные наборы слов, шифрованный текст
-
-## 🛠️ Технологический Стек
-
-| Технология | Версия | Зачем |
-|-----------|--------|-------|
-| React | 18.2 | UI фреймворк |
-| Vite | 5.0 | Быстрый dev-сервер и build |
-| Claude API | Sonnet 4 | AI для анализа текста |
-| Canvas API | Native | Для рисования конспектов |
-| CSS3 | Native | Стили и анимации |
-
-## 📱 Браузеры
-
-- ✅ Chrome/Chromium (55+)
-- ✅ Firefox (52+)
-- ✅ Safari (11+)
-- ✅ Edge (79+)
-- ✅ Mobile browsers (iOS Safari, Chrome Mobile)
-
-## 🎨 Кастомизация
-
-### Изменить цвета
-
-Отредактируй `src/styles/main.css`:
-
-```css
-/* Основной цвет */
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-
-/* Или используй свои */
-background: linear-gradient(135deg, #YOUR_COLOR1 0%, #YOUR_COLOR2 100%);
-```
-
-### Изменить размер конспекта
-
-В `src/components/NotesGenerator.jsx`:
-
-```javascript
-// Найди эту строку:
-canvas.width = 900    // ← ширина (A4)
-canvas.height = 1270  // ← высота (A4)
-
-// Измени на нужные значения
-```
-
-### Добавить свой стиль конспекта
-
-Отредактируй функцию `drawWrappedText()` и `ctx.font` в компоненте.
-
-## 🐛 Troubleshooting
-
-### ❌ "Cannot find module 'react'"
-```bash
-npm install
-npm install react react-dom
-```
-
-### ❌ "API key not found"
-- Проверь, что `.env` файл существует в корне проекта
-- Проверь, что `VITE_ANTHROPIC_API_KEY` написан правильно
-- Перезагрузи сервер (`npm run dev`)
-
-### ❌ "CORS error" или "403 Forbidden"
-- Проверь, что в fetch запросе есть заголовок `x-api-key`
-- Убедись, что API ключ действительный
-
-### ❌ "Blank white page"
-- Открой DevTools (F12) и проверь консоль на ошибки
-- Очисти кэш: `Ctrl+Shift+Del` → Clear browsing data
-- Перезагрузи сервер: `npm run dev`
-
-### ❌ "Конспект не появляется"
-- Проверь, что текст введен (минимум 10 символов)
-- Подожди 5-10 секунд (API может быть медленным)
-- Посмотри в консоль (F12 → Console) на ошибки
-
-### ❌ Сервер не запускается
-```bash
-# Убей процесс на порту 3000
-lsof -ti:3000 | xargs kill -9
-
-# Или использй другой порт в vite.config.js:
-# port: 3001
-```
-
-## 🚢 Развертывание
-
-### Vercel (самый быстрый способ)
-
-```bash
-# 1. Установи Vercel CLI
-npm install -g vercel
-
-# 2. Развертни
-vercel
-
-# 3. Добавь переменную окружения в Vercel Dashboard:
-# VITE_ANTHROPIC_API_KEY = sk-ant-xxx
-```
-
-### Netlify
-
-```bash
-# 1. Собери проект
-npm run build
-
-# 2. Загрузи папку `dist/` на Netlify
-# или используй GitHub интеграцию
-```
-
-### GitHub Pages
-
-```bash
-# Добавь в vite.config.js:
-# base: '/notes-generator-app/'
-
-npm run build
-# Загрузи содержимое dist/ на GitHub Pages
-```
-
-## 📊 Производительность
-
-- **First Load**: ~2-3 сек (зависит от интернета)
-- **Generate Notes**: 2-5 сек (API ответ)
-- **Canvas Render**: <100ms
-- **Bundle Size**: ~200KB (gzipped)
-
-## 📄 License
-
-MIT © 2024
-
-Используй в личных и коммерческих проектах свободно.
-
-## 🤝 Contributing
-
-Приветствуются Pull Requests!
-
-```bash
-# 1. Fork репозиторий
-# 2. Создай ветку (git checkout -b feature/AmazingFeature)
-# 3. Закоммить изменения (git commit -m 'Add AmazingFeature')
-# 4. Отправить в ветку (git push origin feature/AmazingFeature)
-# 5. Открыть Pull Request
-```
-
-## 💬 Questions?
-
-Открой Issue или свяжись:
-
-- 📧 Email: your.email@example.com
-- 🐦 Twitter: [@yourhandle](https://twitter.com/yourhandle)
-- 💼 LinkedIn: [Your Profile](https://linkedin.com)
-
-## 🙏 Благодарности
-
-- [Claude API](https://anthropic.com/) за AI
-- [React](https://react.dev/) за UI
-- [Vite](https://vitejs.dev/) за быстрый build
-- [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) за рисование
+![Version](https://img.shields.io/badge/version-2.0-blueviolet)
+![Node](https://img.shields.io/badge/node-%3E%3D16-green)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![AI](https://img.shields.io/badge/AI-Claude%20Haiku-orange)
 
 ---
 
-**Сделано с ❤️ для студентов и любителей конспектов**
+## 🎯 Что это такое
 
-⭐ Если проект помогает — дай ему звезду на GitHub!
+Вставляешь текст — лекцию, статью, учебный материал — и за несколько секунд получаешь структурированный конспект в стиле рукописной тетради:
+
+- 📌 Разделы с заголовками и иконками
+- 🟡 Ключевые слова выделены жёлтым маркером
+- 🔴 Важные даты и цифры в красных кружках
+- ⭐ Главная формула или вывод в рамке
+- 📥 Готовый PNG для скачивания и печати
+
+---
+
+## 🖥️ Скриншот
+
+```
+┌─────────────────────────┬──────────────────────────┐
+│  📌 Введите текст       │  👀 Превью конспекта     │
+│                         │                          │
+│  [textarea]             │  ┌──────────────────┐    │
+│                         │  │  📝 Конспект     │    │
+│  ✨ Создать конспект    │  │  ─────────────── │    │
+│  🗑️ Очистить            │  │  ● Раздел 1      │    │
+│                         │  │  → пункт         │    │
+│                         │  │  ⭐ вывод        │    │
+│                         │  └──────────────────┘    │
+│                         │                          │
+│                         │  📥 Скачать PNG          │
+└─────────────────────────┴──────────────────────────┘
+```
+
+---
+
+## 🛠️ Технологии
+
+| Компонент | Технология |
+|-----------|-----------|
+| Frontend | HTML + React 18 (CDN) |
+| Рисование | Canvas API |
+| Backend | Node.js + Express |
+| AI | Claude Haiku (Anthropic API) |
+| Сборка | Не нужна — чистый HTML |
+
+---
+
+## 🚀 Быстрый старт
+
+### 1. Требования
+
+- [Node.js](https://nodejs.org) v16 или выше (скачай версию **LTS**)
+- API ключ от Anthropic ([получить бесплатно](https://console.anthropic.com/settings/keys))
+
+### 2. Установка
+
+```bash
+# Клонируй репозиторий
+git clone https://github.com/OlgaPolish/notes-generator-app.git
+cd notes-generator-app
+
+# Установи зависимости
+npm install
+```
+
+### 3. Настройка API ключа
+
+Открой файл `.env` и вставь свой ключ:
+
+```env
+ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxxxxxxxxxxxxx
+PORT=3000
+```
+
+> ⚠️ Файл `.env` добавлен в `.gitignore` — ключ никогда не попадёт на GitHub
+
+### 4. Запуск
+
+**Windows** — двойной клик на `start.bat`
+
+**Или через терминал:**
+```bash
+npm start
+```
+
+Открой в браузере: **http://localhost:3000**
+
+---
+
+## 📁 Структура проекта
+
+```
+notes-generator-app/
+├── public/
+│   └── index.html        ← Всё приложение (React + Canvas)
+├── server.js             ← Express-сервер + прокси для API
+├── package.json          ← Зависимости
+├── .env                  ← API ключ (не в Git!)
+├── .env.example          ← Шаблон для .env
+├── .gitignore            ← Исключает .env и node_modules
+├── start.bat             ← Быстрый запуск на Windows
+└── README.md             ← Этот файл
+```
+
+---
+
+## 💡 Как пользоваться
+
+1. Открой **http://localhost:3000**
+2. Вставь текст в левое поле (до 3000 символов)
+3. Нажми **✨ Создать конспект**
+4. Подожди 3–5 секунд — конспект появится справа
+5. Нажми **📥 Скачать конспект (PNG)**
+
+### Советы для лучшего результата
+
+- ✅ Используй связные тексты (лекции, статьи, параграфы из учебника)
+- ✅ Лучше работает с текстами, где есть структура и факты
+- ✅ До 3000 символов — оптимальный размер
+- ❌ Случайные наборы слов или таблицы без контекста дадут слабый результат
+
+---
+
+## ⚙️ Как это работает
+
+```
+Браузер                 server.js              Anthropic API
+   │                        │                       │
+   │── POST /api/claude ──► │                       │
+   │    { текст }           │── POST /v1/messages ► │
+   │                        │   + x-api-key          │
+   │                        │ ◄── JSON конспект ─── │
+   │ ◄── JSON конспект ─── │                       │
+   │                        │
+   │  Canvas рисует конспект
+   │  → PNG для скачивания
+```
+
+Браузер **не знает** API ключ — он хранится только в `.env` на сервере.
+
+---
+
+## 🐛 Частые проблемы
+
+| Ошибка | Решение |
+|--------|---------|
+| `node` не является командой | Установи [Node.js](https://nodejs.org) |
+| `API ключ не настроен` | Открой `.env` и вставь ключ |
+| `Failed to fetch` | Убедись что сервер запущен (`start.bat`) |
+| Чёрный PNG при скачивании | Обнови файл `public/index.html` до версии 2.0 |
+| Страница не открывается | Проверь что в терминале есть `✅ Сервер запущен!` |
+
+---
+
+## 🔑 Получение API ключа
+
+1. Зайди на [console.anthropic.com](https://console.anthropic.com/settings/keys)
+2. Нажми **Create Key**
+3. Скопируй ключ вида `sk-ant-...`
+4. Вставь в файл `.env`
+
+Новые аккаунты получают бесплатные кредиты для тестирования.
+
+---
+
+## 🚢 Деплой
+
+### Vercel (рекомендуется)
+1. Зайди на [vercel.com](https://vercel.com) → **Import Git Repository**
+2. Выбери `notes-generator-app`
+3. В разделе **Environment Variables** добавь `ANTHROPIC_API_KEY`
+4. Нажми **Deploy**
+
+### GitHub Pages
+GitHub Pages не поддерживает Node.js-сервер. Используй Vercel или Netlify.
+
+---
+
+## 📄 Лицензия
+
+MIT — используй свободно в личных и коммерческих проектах.
+
+---
+
+**Сделано с ❤️ и Claude AI**
